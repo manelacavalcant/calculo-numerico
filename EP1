@@ -1,9 +1,9 @@
-import math
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import math as math
+
 # x^(3/4)-cos(x^2) = 0
-
-
-# fazer listagens em forma de tabela!!!!!!!!!!
-
 
 def Modulo(x):
   if x > 0:
@@ -22,23 +22,42 @@ def f(x):
 def F(x):  # derivada
 	return (3/4)*(x**(-1/4))+2*x*math.sin(x**2)
 
+# Para plotar o gráfico:
+def fg(x):
+  graf = []
+  for i in range(len(x)):
+    gi = x[i]**(3/4)-np.cos(x[i]**2)
+    graf.append(gi)
+  return graf
+x = np.arange(0,9,0.01)
+y = fg(x)
+plt.figure(figsize=(10, 6))
+plt.plot(x,y, color = 'purple')
+# plt.scatter(Bisseccao(),f(Bisseccao()), color = 'red',label='Método da Bissecção')
+plt.grid(True, linestyle='--')
+plt.xlabel('x')
+plt.ylabel('f(x)')
+# plt.legend()
+plt.show()
+
 # Método da bissecção:
 def Bisseccao():
-	x1,x2,x0 = 0,1,0
-	epsilon = 2**(-8)
-	while Modulo(x2-x1) > epsilon:
-  	x0 = (x1+x2/2)
-  	if Sinal_igual(f(x1),f(x0)):
-    	x1 = x0
-  	else:
-    	x2 = x0
-	return x0
+  x1,x2,x0 = 0,1,0
+  epsilon = 2**(-8)
+  while Modulo(x2-x1) > epsilon:
+    x0 = (x1+x2)/2
+    if Sinal_igual(f(x1),f(x0)):
+      x1 = x0
+    else:
+      x2 = x0
+    print('x1 = ',x1,'\n','x2 = ',x2,'\n', 'x_m = ',x0)
+  return x0
+Bisseccao()
 
 # Método de Newton-Raphson:
 def NewtonRaphson():
-	x,x0 = 1,0
-	epsilon = 2**(-8)
-	while Modulo((x0 - x)/x) > epsilon:
-		x0 = x-(f(x)/F(x))
-	return x0
-	
+  x,x0 = 1,0
+  epsilon = 2**(-8)
+  while Modulo((x0 - x)/x) > epsilon:
+    x0 = x-(f(x)/F(x))
+  return x0
