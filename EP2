@@ -1,0 +1,40 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+
+# item b): Eliminação de Gauss
+
+def Gauss(A):  # tem como parâmetro a matriz aumentada
+
+  n = A.shape[0]  # número de linhas da matriz
+  for i in range(n):
+    pivo = np.abs(A[i:, i])  # pivô; checando a submatriz de acordo com i
+    m = np.argmax(pivo) + i  # índice do pivô
+
+    if m != i:
+      A[[i, m]] = A[[m, i]]  # troca de linhas
+      print(A)
+
+    for j in range(i + 1, n):  # escalonando
+      fator = A[j, i] / A[i, i]
+      A[j, i:] -= fator * A[i, i:]  # zerando os itens abaixo do pivô
+      print(A)
+
+  X = np.zeros((n,1))  # vetor solução
+  for i in range(n - 1, -1, -1):  # substituição para trás
+    X[i,0] = ( A[i,-1]-np.sum(A[i,i:-1]*X[i:,0]) )/A[i,i]
+  print('Matriz solução:\n',X)
+
+  return X
+
+def mainGauss():
+
+  M = np.array([ [0.0,5.3,-1.8,3.1],[11.9,0.0,1.8,15.0],[1.0,-1.0,-1.0,0.0]])
+  print(M)
+  m = Gauss(M)
+  teste = np.matmul(M[:,:-1],m)  # multiplicação dos coeficientes pela matriz solução
+  print('Teste:\n',teste)
+
+mainGauss()
+
