@@ -38,3 +38,85 @@ def mainGauss():
 
 mainGauss()
 
+
+# item c): Método de Jacobi
+
+def Jacobi(A,b):  # tem como parâmetro as matrizes de coeficientes e de resultados
+
+  epsilon = 10**(-3)  # critério de parada
+  n = A.shape[0]  # número de linhas da matriz
+  Xk = np.zeros((n,1))  # vetor solução
+  Xk1 = np.ones((n,1))  # vetor auxiliar
+  k = 0  # contador de iterações
+
+  while np.linalg.norm(Xk1-Xk, ord=np.inf) >= epsilon:
+    Xk = np.copy(Xk1)
+    k += 1
+    print('k = ',k)
+
+    for j in range(n):  # laço para as linhas
+      esq = np.sum(A[j,:j]*Xk[:j,0])  # à esquerda de A[j,j]
+      dir = np.sum(A[j,j+1:]*Xk[j+1:,0])  # à direita de A[j,j]
+      Xk1[j,0] = (b[j,0] - dir - esq)/A[j,j]
+    print('X = ',Xk1,'\n','erro = ',np.linalg.norm(Xk1-Xk, ord=np.inf),'\n')
+
+  return Xk1
+
+def mainJacobi():
+  # duas primeiras linhas permutadas:
+  M = np.array([ [11.9,0.0,1.8],[0.0,5.3,-1.8],[1.0,-1.0,-1.0] ])
+  b = np.array([ [15.0],[3.1],[0.0] ])
+  print('A = ',M,'\n')
+  print('b = ',b,'\n')
+  j = Jacobi(M,b)
+
+mainJacobi()
+
+
+# item d):
+
+A = np.array([ [11.9,0.0,1.8],[0.0,5.3,-1.8],[1.0,-1.0,-1.0] ])
+J = np.zeros((3,3))
+for i in range(3):  # linhas
+  J[i,i+1:] = A[i,i+1:]/A[i,i]
+  J[i,:i] = A[i,:i]/A[i,i]
+print(J)
+
+lamda = 0.700631j
+rho = np.abs(lamda)
+k = math.log(10**(-3),rho)
+print('k = ',k)
+
+
+# item e): Método de Gauss-Seidel
+
+def GaussSeidel(A,b):  # tem como parâmetro as matrizes de coeficientes e de resultados
+
+  epsilon = 10**(-3)  # critério de parada
+  n = A.shape[0]  # número de linhas da matriz
+  Xk = np.zeros((n,1))  # vetor solução
+  Xk1 = np.ones((n,1))  # vetor atualizado
+  k = 0  # contador de iterações
+
+  while np.linalg.norm(Xk1-Xk, ord=np.inf) >= epsilon:
+    Xk = np.copy(Xk1)
+    k += 1
+    print('k = ',k)
+
+    for j in range(n):  # laço para as linhas
+      esq = np.sum(A[j,:j]*Xk1[:j,0])  # à esquerda de A[j,j], usando o vetor atualizado
+      dir = np.sum(A[j,j+1:]*Xk[j+1:,0])  # à direita de A[j,j]
+      Xk1[j,0] = (b[j,0] - dir - esq)/A[j,j]
+    print('X = ',Xk1,'\n','erro = ',np.linalg.norm(Xk1-Xk, ord=np.inf),'\n')
+
+  return Xk1
+
+def mainGS():
+  # duas primeiras linhas permutadas:
+  M = np.array([ [11.9,0.0,1.8],[0.0,5.3,-1.8],[1.0,-1.0,-1.0] ])
+  b = np.array([ [15.0],[3.1],[0.0] ])
+  print('A = ',M,'\n')
+  print('b = ',b,'\n')
+  g = GaussSeidel(M,b)
+
+mainGS()
