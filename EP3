@@ -1,0 +1,144 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# exercício 1)
+
+d = np.float32
+def Simpson(f, a, b, n, dtype=d):  # a e b: limites superior e inferior da integral
+
+  a, b = dtype(a), dtype(b)
+  h = (a - b) / dtype(n)  # distância entre os pontos
+  integral = dtype(f(a) + f(b))  # nos limites
+
+  for i in range(1,n,2):  # índices 'pares'
+    integral += dtype(4*f(b+(i*h)))
+
+  for i in range(2,n-1,2):  # índices 'ímpares'
+    integral += dtype(2*f(b+(i*h)))
+
+  return (h/3)*integral
+
+def f(x):
+  return (6 - 6*(x**5))
+
+
+a,b = 1,0
+p = 0
+I_anal = 5
+E1,E2,P = [],[],[]
+
+for i in range(1,26):
+  p = i
+  n = 2**p
+  d = np.float32
+  r1 = Simpson(f,a,b,n,dtype=d)
+  e1 = abs(r1 - I_anal)
+  d = np.float64
+  r2 = Simpson(f,a,b,n,dtype=d)
+  e2 = abs(r2 - I_anal)
+  print(f'simples: p = {p}  N = {n}  I_num = {r1}  erro = {e1}')
+  print(f'dupla: p = {p}  N = {n}  I_num = {r2}  erro = {e2}')
+  E1,E2 = np.append(E1,e1),np.append(E2,e2)
+  P = np.append(P,p)
+
+plt.plot(P,np.log2(E1),color='red',label='Precisão simples',ls='--')
+plt.plot(P,np.log2(E2),color='purple',label='Precisão dupla',ls='-')
+plt.title('Erro em função de p')
+plt.ylabel('log2(erro)')
+plt.xlabel('p')
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# exercício 2)
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+T_g = np.pi  # período de galileu para ângulos pequenos já considerando T/T_g
+
+
+def Trapezio(f, a, b, n, k2):
+
+  h = (b - a)/n
+  integral = f(a,k2) + f(b,k2)
+
+  for i in np.arange(1,n):
+    integral += 2*f(a+i*h,k2)
+
+  return (h/2)*integral
+
+
+def f_(phi,k2):
+  return 2*(1/(np.sqrt(1-(k2*(np.sin(phi)**2)))))
+
+b = np.pi/2
+a = 0
+
+def valores(k,p):
+  R,T = [],[]
+  for i in np.arange(0,np.pi+k,k):
+    theta = i
+    k2 = (1-np.cos(theta))/2
+    r = Trapezio(f_,a,b,1000,k2)/T_g
+    if p:
+      print(f'theta = {theta}  T/T_g = {r}')
+    R,T = np.append(R,r),np.append(T,theta)
+  return R,T
+
+valores(np.pi/10,p=True)
+
+R,T = valores(np.pi/1000,p=False)
+plt.plot(np.degrees(T),R,color='r',label='k = pi/1000')
+plt.title('T/T_g em função de theta')
+plt.ylabel('T/T_g')
+plt.xlabel('theta')
+plt.grid(True)
+plt.legend()
+plt.show()
+
+# exercício 3)
+
+def F(x):
+  return (1 - x**2)
+
+def lcg(Z0, n):  # gerando o dobro de pontos para dividir entre x e y
+    x = Z0  #  semente inicial
+    a = 1103515245
+    c = 12345
+    m = 2147483647
+    random = []
+
+    for i in range(n):
+        x = (a * x + c) % m
+        U = x/m  # normaliza
+        random.append(U)
+
+    return random
+
+n = 100
+s = 12652466  # meu número USP
+
+def I(n,s):
+  random = lcg(s,n*2)
+  x,y = random[:n],random[n:]  # dividindo os aleatórios entre x e y
+  dentro = 0
+  for i in range(n):
+    if y[i] < F(x[i]):
+      dentro += 1
+  return dentro/n
+
+X = np.linspace(0,1,100)
+Y = F(X)
+plt.scatter(x,y,color='r',s=10,label='pontos aleatórios')
+plt.plot(X,Y,color='g',ls='--',label='f(x)=1-x^2')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+A = []
+for i in range(1,18):
+  t = 2**i
+  for Nt in range(t):
+    A = np.append(A,I(n,s+Nt))  # modificando a semente para obter mais aleatórios
+  print(f'Nt = {t}  I_m = {np.mean(A)}  sigma = {np.std(A)}  sig_m = {np.std(A)/np.sqrt(t)}')
